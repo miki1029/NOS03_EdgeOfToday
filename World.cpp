@@ -1,4 +1,5 @@
 #include <fstream>
+#include <chrono>
 #include <thread>
 #include "World.h"
 
@@ -98,16 +99,17 @@ void World::CalcBunkerDamage()
     vector<shared_ptr<Bunker>>::iterator bunkItr_th1 = bunkerVect.begin();
     vector<shared_ptr<Bunker>>::iterator bunkItr_th2 = bunkItr_th1End;
     vector<shared_ptr<Bunker>>::iterator bunkItr_th3 = bunkItr_th2End;
-    vector<shared_ptr<Bunker>>::iterator bunkItr = bunkItr_th3End;
+    vector<shared_ptr<Bunker>>::iterator bunkItr_th4 = bunkItr_th3End;
 
     thread th1(&ThreadCalc, bunkItr_th1, bunkItr_th1End, this);
     thread th2(&ThreadCalc, bunkItr_th2, bunkItr_th2End, this);
     thread th3(&ThreadCalc, bunkItr_th3, bunkItr_th3End, this);
-    ThreadCalc(bunkItr, bunkerVect.end(), this);
-
+    thread th4(&ThreadCalc, bunkItr_th4, bunkerVect.end(), this);
+    
     th1.join();
     th2.join();
     th3.join();
+    th4.join();
 
     // 8 thread
     /*int bunkerSize = bunkerVect.size();

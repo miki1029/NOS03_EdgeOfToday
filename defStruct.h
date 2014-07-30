@@ -37,5 +37,4 @@ inline void Swap(T& a, T& b)
     b = tmp;
 }
 
-extern clock_t startTime;
 extern bool runState;
