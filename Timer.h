@@ -1,8 +1,9 @@
+// 30초 타이머를 나타내는 쓰레드 클래스
 #pragma once
 #include <iostream>
 #include <thread>
 #include <chrono>
-#include "defStruct.h"
+#include "myGlobal.h"
 
 using namespace std;
 

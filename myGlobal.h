@@ -1,6 +1,6 @@
+// 전역 영역 헤더
 #pragma once
 #include <cmath>
-#include <ctime>
 
 struct Point
 {
@@ -26,6 +26,7 @@ struct Point
     }
 };
 
+// 초기화 용도 또는 존재하지 않는 점을 의미함
 const Point dummyPoint{ -1, -1 };
 
 template <typename T>
@@ -37,4 +38,5 @@ inline void Swap(T& a, T& b)
     b = tmp;
 }
 
+// runState는 Timer에 의해 값이 변경되며 false가 되면 프로그램이 종료 준비를 함
 extern bool runState;

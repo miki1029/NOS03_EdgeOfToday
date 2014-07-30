@@ -64,20 +64,24 @@ void World::SaveData(const char* filename)
 
 void World::CalcGroundLowHigh()
 {
+    // y 순회
     for (int y = 0; y < map.GetHeight(); y++)
     {
         bool isGround = false, isAir = false;
+        // x 순회
         for (int x = 0; x < map.GetWidth(); x++)
         {
             const RGBQurd color = map.GetPixel(x, y);
             if (color == Black) isGround = true;
             else isAir = true;
-            if (isGround && isAir) break;
+            if (isGround && isAir) break; // 대기와 대지가 혼재하는 구간. 더이상 뒷 픽셀을 확인할 필요가 없음
         }
+        // 대지를 처음 만난 경우
         if (groundLowY == 0 && isGround)
         {
             groundLowY = y;
         }
+        // 혼재구간이 끝난 경우
         if (isGround && !isAir)
         {
             groundHighY = y;
@@ -157,8 +161,9 @@ void World::ThreadCalc(vector<shared_ptr<Bunker>>::iterator bunkItr, vector<shar
 
 void World::ThreadCalcProc(vector<shared_ptr<Bunker>>::iterator bunkItr, vector<shared_ptr<Bunker>>::iterator bunkItrEnd)
 {
-    for (; bunkItr != bunkItrEnd; bunkItr++)
+    // runState: Timer에 의해 30초후 false가 됨 -> 프로그램 종료 준비
+    for (; runState && bunkItr != bunkItrEnd; bunkItr++)
     {
-        if (!(*bunkItr)->CalcDamage(spaceshipVect, this)) return;
+        (*bunkItr)->CalcDamage(spaceshipVect, this);
     }
 }

@@ -1,6 +1,8 @@
+// 비트맵 로딩 관련 구조체, 상수, 클래스가 선언되어 있음
+// 8비트를 기준으로 작성 되어있음
 #pragma once
 #include <iostream>
-#include "defStruct.h"
+#include "myGlobal.h"
 
 #pragma pack(push, 1)
 
