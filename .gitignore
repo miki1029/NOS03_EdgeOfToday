@@ -1,0 +1,8 @@
+Debug
+Release
+*.APS
+*.vcxproj
+*.filters
+*.user
+*.txt
+*.bmp
