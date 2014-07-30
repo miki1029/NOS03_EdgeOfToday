@@ -1,4 +1,5 @@
 #include <fstream>
+#include <thread>
 #include "World.h"
 
 World::World(const Bitmap& bm, const char* filename)
@@ -86,9 +87,76 @@ void World::CalcGroundLowHigh()
 
 void World::CalcBunkerDamage()
 {
-    vector<shared_ptr<Bunker>>::iterator bunkItr = bunkerVect.begin();
-    for (; bunkItr != bunkerVect.end(); bunkItr++)
+    // 4 thread
+    int bunkerSize = bunkerVect.size();
+    int quater = bunkerSize / 4;
+
+    vector<shared_ptr<Bunker>>::iterator bunkItr_th1End = bunkerVect.begin() + quater;
+    vector<shared_ptr<Bunker>>::iterator bunkItr_th2End = bunkerVect.begin() + quater * 2;
+    vector<shared_ptr<Bunker>>::iterator bunkItr_th3End = bunkerVect.begin() + quater * 3;
+
+    vector<shared_ptr<Bunker>>::iterator bunkItr_th1 = bunkerVect.begin();
+    vector<shared_ptr<Bunker>>::iterator bunkItr_th2 = bunkItr_th1End;
+    vector<shared_ptr<Bunker>>::iterator bunkItr_th3 = bunkItr_th2End;
+    vector<shared_ptr<Bunker>>::iterator bunkItr = bunkItr_th3End;
+
+    thread th1(&ThreadCalc, bunkItr_th1, bunkItr_th1End, this);
+    thread th2(&ThreadCalc, bunkItr_th2, bunkItr_th2End, this);
+    thread th3(&ThreadCalc, bunkItr_th3, bunkItr_th3End, this);
+    ThreadCalc(bunkItr, bunkerVect.end(), this);
+
+    th1.join();
+    th2.join();
+    th3.join();
+
+    // 8 thread
+    /*int bunkerSize = bunkerVect.size();
+    int quater = bunkerSize / 8;
+
+    vector<shared_ptr<Bunker>>::iterator bunkItr_th1End = bunkerVect.begin() + quater;
+    vector<shared_ptr<Bunker>>::iterator bunkItr_th2End = bunkerVect.begin() + quater * 2;
+    vector<shared_ptr<Bunker>>::iterator bunkItr_th3End = bunkerVect.begin() + quater * 3;
+    vector<shared_ptr<Bunker>>::iterator bunkItr_th4End = bunkerVect.begin() + quater * 4;
+    vector<shared_ptr<Bunker>>::iterator bunkItr_th5End = bunkerVect.begin() + quater * 5;
+    vector<shared_ptr<Bunker>>::iterator bunkItr_th6End = bunkerVect.begin() + quater * 6;
+    vector<shared_ptr<Bunker>>::iterator bunkItr_th7End = bunkerVect.begin() + quater * 7;
+
+    vector<shared_ptr<Bunker>>::iterator bunkItr_th1 = bunkerVect.begin();
+    vector<shared_ptr<Bunker>>::iterator bunkItr_th2 = bunkItr_th1End;
+    vector<shared_ptr<Bunker>>::iterator bunkItr_th3 = bunkItr_th2End;
+    vector<shared_ptr<Bunker>>::iterator bunkItr_th4 = bunkItr_th3End;
+    vector<shared_ptr<Bunker>>::iterator bunkItr_th5 = bunkItr_th4End;
+    vector<shared_ptr<Bunker>>::iterator bunkItr_th6 = bunkItr_th5End;
+    vector<shared_ptr<Bunker>>::iterator bunkItr_th7 = bunkItr_th6End;
+    vector<shared_ptr<Bunker>>::iterator bunkItr = bunkItr_th7End;
+
+    thread th1(&ThreadCalc, bunkItr_th1, bunkItr_th1End, this);
+    thread th2(&ThreadCalc, bunkItr_th2, bunkItr_th2End, this);
+    thread th3(&ThreadCalc, bunkItr_th3, bunkItr_th3End, this);
+    thread th4(&ThreadCalc, bunkItr_th4, bunkItr_th4End, this);
+    thread th5(&ThreadCalc, bunkItr_th5, bunkItr_th5End, this);
+    thread th6(&ThreadCalc, bunkItr_th6, bunkItr_th6End, this);
+    thread th7(&ThreadCalc, bunkItr_th7, bunkItr_th7End, this);
+    ThreadCalc(bunkItr, bunkerVect.end(), this);
+
+    th1.join();
+    th2.join();
+    th3.join();
+    th4.join();
+    th5.join();
+    th6.join();
+    th7.join();*/
+}
+
+void World::ThreadCalc(vector<shared_ptr<Bunker>>::iterator bunkItr, vector<shared_ptr<Bunker>>::iterator bunkItrEnd, World* world)
+{
+    world->ThreadCalcProc(bunkItr, bunkItrEnd);
+}
+
+void World::ThreadCalcProc(vector<shared_ptr<Bunker>>::iterator bunkItr, vector<shared_ptr<Bunker>>::iterator bunkItrEnd)
+{
+    for (; bunkItr != bunkItrEnd; bunkItr++)
     {
-        (*bunkItr)->CalcDamage(spaceshipVect, this);
+        if (!(*bunkItr)->CalcDamage(spaceshipVect, this)) return;
     }
 }

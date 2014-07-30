@@ -3,10 +3,12 @@
 
 using namespace std;
 
+clock_t startTime = clock();
+bool runState = true;
+
 int main(void)
 {
-    clock_t begin, end;
-    begin = clock();
+
     Bitmap map("world.bmp");
 
     World world(map, "input.txt");
@@ -15,8 +17,8 @@ int main(void)
 
     world.SaveData("output.txt");
 
-    end = clock();
-    std::cout << "수행시간: " << (end - begin) / CLOCKS_PER_SEC << std::endl;
+    clock_t endTime = clock();
+    std::cout << "수행시간: " << (endTime - startTime) << std::endl;
 
     return 0;
 }

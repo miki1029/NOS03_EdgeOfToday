@@ -11,11 +11,13 @@ Bunker::~Bunker()
 }
 
 
-void Bunker::CalcDamage(const vector<shared_ptr<Spaceship>>& spaceshipVect, World* world)
+bool Bunker::CalcDamage(const vector<shared_ptr<Spaceship>>& spaceshipVect, World* world)
 {
     vector<shared_ptr<Spaceship>>::const_iterator spaceItr = spaceshipVect.begin();
-    for (; spaceItr != spaceshipVect.end(); spaceItr++)
+    for (; runState && spaceItr != spaceshipVect.end(); spaceItr++)
     {
+        /*clock_t curTime = clock();
+        if (curTime - startTime > 29900) return false;*/
         const Point contactPoint = (*spaceItr)->FindContactPoint(this, world);
         if (contactPoint == dummyPoint) continue;
 
@@ -28,4 +30,5 @@ void Bunker::CalcDamage(const vector<shared_ptr<Spaceship>>& spaceshipVect, Worl
 
         damage += bunkerEnergy;
     }
+    return true;
 }

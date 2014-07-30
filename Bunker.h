@@ -20,6 +20,6 @@ public:
     inline Point GetPos() const { return pos; }
     inline double GetDamage() const { return damage; }
 
-    void CalcDamage(const vector<shared_ptr<Spaceship>>& spaceshipVect, World* world);
+    bool CalcDamage(const vector<shared_ptr<Spaceship>>& spaceshipVect, World* world);
 };
 

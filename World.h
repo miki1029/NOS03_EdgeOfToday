@@ -34,5 +34,9 @@ public:
     void CalcGroundLowHigh();
 
     void CalcBunkerDamage();
+
+private:
+    static void ThreadCalc(vector<shared_ptr<Bunker>>::iterator bunkItr, vector<shared_ptr<Bunker>>::iterator bunkItrEnd, World* world);
+    void ThreadCalcProc(vector<shared_ptr<Bunker>>::iterator bunkItr, vector<shared_ptr<Bunker>>::iterator bunkItrEnd);
 };
 
