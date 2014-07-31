@@ -142,16 +142,33 @@ void World::CalcGroundLowHigh()
     // 혼재 구간을 찾은 경우
     else
     {
+        // 쓰레드 사용
         // 2차: 혼재 구간 최고점 탐색(y 최저값)
-        FindGroundLowY(minY, y);
+        thread th1(&FindGroundLowY, minY, y, this);
         // 3차: 혼재 구간 최저점 탐색(y 최고값)
-        FindGroundHighY(y, maxY);
+        thread th2(&FindGroundHighY, y, maxY, this);
+        th1.join();
+        th2.join();
+
+        // 쓰레드를 안쓸 경우
+        //FindGroundLowYProc(minY, y);
+        //FindGroundHighYProc(y, maxY);
     }
 
     //cout << groundLowY << ", " << groundHighY << endl;
 }
 
-void World::FindGroundLowY(int minY, int maxY)
+void World::FindGroundLowY(int minY, int maxY, World* world)
+{
+    world->FindGroundLowYProc(minY, maxY);
+}
+
+void World::FindGroundHighY(int minY, int maxY, World* world)
+{
+    world->FindGroundHighYProc(minY, maxY);
+}
+
+void World::FindGroundLowYProc(int minY, int maxY)
 {
     // minY: 대기쪽, maxY: 대지쪽
     while (maxY != minY + 1)
@@ -186,7 +203,7 @@ void World::FindGroundLowY(int minY, int maxY)
     groundLowY = maxY;
 }
 
-void World::FindGroundHighY(int minY, int maxY)
+void World::FindGroundHighYProc(int minY, int maxY)
 {
     // minY: 대기쪽, maxY: 대지쪽
     while (maxY != minY + 1)

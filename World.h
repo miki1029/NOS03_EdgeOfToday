@@ -44,9 +44,10 @@ public:
 
 private:
     // CalcGroundLowHigh()의 보조 메소드
-    void FindGroundLowY(int minY, int maxY);
-    void FindGroundHighY(int minY, int maxY);
-
+    static void FindGroundLowY(int minY, int maxY, World* world);
+    static void FindGroundHighY(int minY, int maxY, World* world);
+    void FindGroundLowYProc(int minY, int maxY);
+    void FindGroundHighYProc(int minY, int maxY);
 
     // 벙커의 피해량 계산시 스레드 활용
     static void ThreadCalc(vector<shared_ptr<Bunker>>::iterator bunkItr, vector<shared_ptr<Bunker>>::iterator bunkItrEnd, World* world);

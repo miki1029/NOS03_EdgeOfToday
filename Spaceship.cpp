@@ -18,11 +18,11 @@ Point Spaceship::FindContactPoint(Bunker* bunker, World* world)
     double m = static_cast<double>(bunker->GetPos().y - pos.y) / (bunker->GetPos().x - pos.x);
     double rm = static_cast<double>(bunker->GetPos().x - pos.x) / (bunker->GetPos().y - pos.y);
 
-    // low point
+    // low point(그림 상 위)
     int y1 = world->GetGroundLowY();
     int x1 = static_cast<int>(XEquation(rm, y1)); // 버림.. 오차 발생
 
-    // high point
+    // high point(그림 상 아래)
     int y2 = world->GetGroundHighY();
     int x2 = static_cast<int>(XEquation(rm, y2)); // 버림.. 오차 발생
 
@@ -33,41 +33,58 @@ Point Spaceship::FindContactPoint(Bunker* bunker, World* world)
     // x축이 독립축
     if (-1 < m && m < 1)
     {
-        if (x1 > x2)
+        // 외계 비행선이 좌측, 벙커가 우측
+        if (x1 < x2)
         {
-            Swap(x1, x2);
-            Swap(y1, y2);
-        } // 편의상 x1을 작은 값으로 하기 위해
-        double y = static_cast<double>(y1); // 초기값
-        // 직선 탐색
-        for (int x = x1; x <= x2; x++)
+            double y = YEquation(m, x1); // 초기값
+            // 직선 탐색
+            for (int x = x1; x <= x2; x++)
+            {
+                RGBQurd color = world->GetMap().GetPixel(x, static_cast<int>(y));
+                // 첫 접점을 찾은 경우
+                if (!find && color == Black)
+                {
+                    find = true;
+                    contactPoint = Point{ x, static_cast<int>(y) };
+                }
+                // 접점을 찾았는데 대기를 또 만나는 경우->산란
+                else if (find && color != Black)
+                {
+                    contactPoint = dummyPoint;
+                    break;
+                }
+                y += m;
+            }
+        }
+        // 외계 비행선이 우측, 벙커가 좌측
+        else
         {
-            RGBQurd color = world->GetMap().GetPixel(x, static_cast<int>(y));
-            // 첫 접점을 찾은 경우
-            if (!find && color == Black)
+            double y = YEquation(m, x1) + 1; // 초기값(+1은 오차 최소화)
+            // 직선 탐색
+            for (int x = x1; x >= x2; x--)
             {
-                find = true;
-                contactPoint = Point{ x, static_cast<int>(y) };
+                RGBQurd color = world->GetMap().GetPixel(x, static_cast<int>(y));
+                // 첫 접점을 찾은 경우
+                if (!find && color == Black)
+                {
+                    find = true;
+                    contactPoint = Point{ x, static_cast<int>(y) };
+                }
+                // 접점을 찾았는데 대기를 또 만나는 경우->산란
+                else if (find && color != Black)
+                {
+                    contactPoint = dummyPoint;
+                    break;
+                }
+                y -= m;
             }
-            // 접점을 찾았는데 대기를 또 만나는 경우->산란
-            else if (find && color != Black)
-            {
-                contactPoint = dummyPoint;
-                break;
-            }
-            y += m;
         }
     }
     // y축이 독립축
     else
     {
-        /* y1이 항상 작음
-        if (y1 > y2)
-        {
-            Swap(x1, x2);
-            Swap(y1, y2);
-        }*/
-        double x = static_cast<double>(x1); // 초기값
+        // y1이 항상 작음
+        double x = XEquation(rm, y1); // 초기값
         // 직선 탐색
         for (int y = y1; y <= y2; y++)
         {
