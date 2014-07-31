@@ -1,6 +1,7 @@
 #include "Spaceship.h"
 #include "Bunker.h"
 #include "World.h"
+#define INFINITE INT_MAX
 
 Spaceship::Spaceship(int x, int y, double e)
 : pos({ x, y }), energy(e)
@@ -14,9 +15,16 @@ Spaceship::~Spaceship()
 
 Point Spaceship::FindContactPoint(Bunker* bunker, World* world)
 {
-    // 기울기
-    double m = static_cast<double>(bunker->GetPos().y - pos.y) / (bunker->GetPos().x - pos.x);
-    double rm = static_cast<double>(bunker->GetPos().x - pos.x) / (bunker->GetPos().y - pos.y);
+    // 기울기 (무한대 표기의 대용으로 INT_MAX를 사용하였음)
+    double m, rm;
+    if (bunker->GetPos().x - pos.x == 0)
+        m = INFINITE; // y축이 독립 축인 상황으로 -1 ~ 1 사이가 아니기만 하면 되며 더이상 실제 쓰이지 않음.
+    else
+        m = static_cast<double>(bunker->GetPos().y - pos.y) / (bunker->GetPos().x - pos.x);
+    if (bunker->GetPos().y - pos.y == 0)
+        rm = INFINITE; // x축이 독립 축인 상황이며 m==0 이므로 실제 쓰이지 않음.
+    else
+        rm = static_cast<double>(bunker->GetPos().x - pos.x) / (bunker->GetPos().y - pos.y);
 
     // low point(그림 상 위)
     int y1 = world->GetGroundLowY();
@@ -83,7 +91,7 @@ Point Spaceship::FindContactPoint(Bunker* bunker, World* world)
     // y축이 독립축
     else
     {
-        // y1이 항상 작음
+        // y1이 항상 작거나 같음
         double x = XEquation(rm, y1); // 초기값
         // 직선 탐색
         for (int y = y1; y <= y2; y++)
