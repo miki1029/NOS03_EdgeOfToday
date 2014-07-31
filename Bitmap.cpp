@@ -5,16 +5,19 @@ Bitmap::Bitmap(const char* filename)
 {
     if (filename)
     {
-        LoadBitmap(filename);
+        if (!LoadBitmap(filename))
+        {
+            std::cout << "비트맵 로딩 실패" << std::endl;
+        }
     }
 }
 
 
 Bitmap::~Bitmap()
 {
-    if (bmpPixel)
+    if (data)
     {
-        delete[] bmpPixel;
+        delete[] data;
     }
 }
 
@@ -48,7 +51,7 @@ bool Bitmap::LoadBitmap(const char* filename)
     const int height = infoHeader.biHeight;
     const int bitsPerPixel = infoHeader.biBitCount;
     const int bytesPerPixel = bitsPerPixel / 8;
-    const int pitch = (width * bytesPerPixel + 3) & ~3;
+    pitch = (width * bytesPerPixel + 3) & ~3;
     const int dataSize = pitch * height;
 
     if (width <= 0 || height <= 0 ||
@@ -78,17 +81,45 @@ bool Bitmap::LoadBitmap(const char* filename)
         return false;
     }
 
-    bmpPixel = new unsigned char[infoHeader.biSizeImage];
-    fread(bmpPixel, sizeof(unsigned char), infoHeader.biSizeImage, fp);
-    fclose(fp);
+    /*const int bytes = width * height * bytesPerPixel;
+    data.resize(bytes);
+    unsigned char* const destBegin = static_cast<unsigned char*>(&data[0]);
 
-    return true;
+    const int destPitch = width * bytesPerPixel;
+    const int gap = pitch - destPitch;
+    unsigned char* curDest = destBegin + height * destPitch;
+    for (int y = height; y > 0; --y)
+    {
+        curDest -= destPitch;
+        fread(curDest, destPitch, 1, fp);
+        if (gap > 0)
+        {
+            fseek(fp, gap, SEEK_CUR);
+        }
+        
+        for (int x = 0; x < width; ++x)
+        {
+            char temp = curDest[x * 3];
+            curDest[x * 3] = curDest[x * 3 + 2];
+            curDest[x * 3 + 2] = temp;
+        }
+    }*/
+    
+    // 이미지 데이터를 그대로 읽어오고 GetPixel() 호출시 정확한 위치를 계산하여 리턴하는 방식임
+    data = new unsigned char[infoHeader.biSizeImage];
+    fread(data, sizeof(unsigned char), infoHeader.biSizeImage, fp);
+    
+    const int expectedEnd =
+        fileHeader.bfOffBits + infoHeader.biSizeImage;
+    const int dataEndPos = ftell(fp);
+    return dataEndPos == expectedEnd;
 }
 
 RGBQurd Bitmap::GetPixel(int x, int y) const
 {
-    int idx = x + infoHeader.biWidth * (infoHeader.biHeight - y - 1);
-    int palleteIdx = static_cast<int>(bmpPixel[idx]);
+    //int idx = x + infoHeader.biWidth * y;
+    int idx = x + pitch * (infoHeader.biHeight - y - 1);
+    int palleteIdx = static_cast<int>(data[idx]);
     return pallete[palleteIdx];
 }
 

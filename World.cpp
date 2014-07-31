@@ -62,7 +62,9 @@ void World::SaveData(const char* filename)
     outStream.close();
 }
 
-void World::CalcGroundLowHigh()
+/*
+// 이미지를 좌상단부터 무식하게 검색하는 방식(개선 전)
+void World::CalcGroundLowHigh2()
 {
     // y 순회
     for (int y = 0; y < map.GetHeight(); y++)
@@ -88,6 +90,135 @@ void World::CalcGroundLowHigh()
             break;
         }
     }
+    //cout << groundLowY << ", " << groundHighY << endl;
+}
+*/
+
+// 이진 탐색 방식으로 개선함
+void World::CalcGroundLowHigh()
+{
+    int minY = 0, maxY = map.GetHeight(); // 좌표 기준이므로 max가 최저점, min이 최고점임
+    int y = 0;
+    
+    // 1차: 대지와 대기가 혼재하는 구간 탐색
+    // y 순회(이진 탐색)
+    while (maxY != minY + 1)
+    {
+        y = (maxY + minY) / 2;
+        bool isGround = false, isAir = false;
+
+        // x 순회
+        for (int x = 0; x < map.GetWidth(); x++)
+        {
+            const RGBQurd color = map.GetPixel(x, y);
+            if (color == Black) isGround = true;
+            else isAir = true;
+            if (isGround && isAir) break; // 대기와 대지가 혼재하는 구간. 더이상 뒷 픽셀을 확인할 필요가 없음
+        }
+
+        // x 순회 후 판단
+        // 대지와 대기 혼재
+        if (isGround && isAir)
+            break;
+        // 대지만 있음: 윗 방향 이진 탐색
+        else if (isGround && !isAir)
+        {
+            maxY = y;
+        }
+        // 대기만 있음: 아랫 방향 이진 탐색
+        else if (!isGround && isAir)
+        {
+            minY = y;
+        }
+
+    }
+
+    // 혼재 구간이 없는 경우
+    if (maxY == minY + 1)
+    {
+        groundLowY = maxY;
+        groundHighY = maxY;
+    }
+    // 혼재 구간을 찾은 경우
+    else
+    {
+        // 2차: 혼재 구간 최고점 탐색(y 최저값)
+        FindGroundLowY(minY, y);
+        // 3차: 혼재 구간 최저점 탐색(y 최고값)
+        FindGroundHighY(y, maxY);
+    }
+
+    //cout << groundLowY << ", " << groundHighY << endl;
+}
+
+void World::FindGroundLowY(int minY, int maxY)
+{
+    // minY: 대기쪽, maxY: 대지쪽
+    while (maxY != minY + 1)
+    {
+        int y = (maxY + minY) / 2;
+
+        bool isGround = false, isAir = false;
+
+        // x 순회
+        for (int x = 0; x < map.GetWidth(); x++)
+        {
+            const RGBQurd color = map.GetPixel(x, y);
+            if (color == Black) isGround = true;
+            else isAir = true;
+            if (isGround && isAir) break; // 대기와 대지가 혼재하는 구간. 더이상 뒷 픽셀을 확인할 필요가 없음
+        }
+
+        // x 순회 후 판단
+        // 대지와 대기 혼재
+        if (isGround && isAir)
+        {
+            maxY = y;
+        }
+        // 대기만 있음: 아랫 방향 이진 탐색
+        else if (!isGround && isAir)
+        {
+            minY = y;
+        }
+
+    }
+
+    groundLowY = maxY;
+}
+
+void World::FindGroundHighY(int minY, int maxY)
+{
+    // minY: 대기쪽, maxY: 대지쪽
+    while (maxY != minY + 1)
+    {
+        int y = (maxY + minY) / 2;
+
+        bool isGround = false, isAir = false;
+
+        // x 순회
+        for (int x = 0; x < map.GetWidth(); x++)
+        {
+            const RGBQurd color = map.GetPixel(x, y);
+            if (color == Black) isGround = true;
+            else isAir = true;
+            if (isGround && isAir) break; // 대기와 대지가 혼재하는 구간. 더이상 뒷 픽셀을 확인할 필요가 없음
+        }
+
+        // x 순회 후 판단
+        // 대지와 대기 혼재
+        if (isGround && isAir)
+        {
+            minY = y;
+        }
+        // 대지만 있음: 윗 방향 이진 탐색
+        else if (isGround && !isAir)
+        {
+            maxY = y;
+        }
+
+    }
+
+    groundHighY = maxY;
 }
 
 void World::CalcBunkerDamage()

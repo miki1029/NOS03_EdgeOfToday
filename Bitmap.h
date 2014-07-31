@@ -85,7 +85,8 @@ private:
     BitmapFileHeader fileHeader;
     BitmapInfoHeader infoHeader;
     RGBQurd pallete[PalleteSize];
-    unsigned char* bmpPixel;
+    unsigned char* data;
+    int pitch;
 
 public:
     explicit Bitmap(const char* filename);

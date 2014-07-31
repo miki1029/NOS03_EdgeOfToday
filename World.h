@@ -36,12 +36,18 @@ public:
     // 파입 입출력, 초기화 관련
     void LoadData(const char* filename);
     void SaveData(const char* filename);
-    void CalcGroundLowHigh(); // groundLowY, groundHighY의 값을 계산함
+    void CalcGroundLowHigh(); // groundLowY, groundHighY의 값을 계산함(개선)
+    //void CalcGroundLowHigh2(); // groundLowY, groundHighY의 값을 계산함(개선전)
 
     // 각 벙커의 피해량 계산
     void CalcBunkerDamage();
 
 private:
+    // CalcGroundLowHigh()의 보조 메소드
+    void FindGroundLowY(int minY, int maxY);
+    void FindGroundHighY(int minY, int maxY);
+
+
     // 벙커의 피해량 계산시 스레드 활용
     static void ThreadCalc(vector<shared_ptr<Bunker>>::iterator bunkItr, vector<shared_ptr<Bunker>>::iterator bunkItrEnd, World* world);
     void ThreadCalcProc(vector<shared_ptr<Bunker>>::iterator bunkItr, vector<shared_ptr<Bunker>>::iterator bunkItrEnd);
