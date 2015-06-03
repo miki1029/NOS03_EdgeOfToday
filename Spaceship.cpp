@@ -18,7 +18,7 @@ Point Spaceship::FindContactPoint(Bunker* bunker, World* world)
     // 기울기 (무한대 표기의 대용으로 INT_MAX를 사용하였음)
     double m, rm;
     if (bunker->GetPos().x - pos.x == 0)
-        m = INFINITE; // y축이 독립 축인 상황으로 -1 ~ 1 사이가 아니기만 하면 되며 더이상 실제 쓰이지 않음.
+        m = INFINITE; // y축이 독립 축인 상황으로 -1 ~ 1 사이가 아니기만 하면 되며 조건 검사 후 더이상 실제 쓰이지 않음.
     else
         m = static_cast<double>(bunker->GetPos().y - pos.y) / (bunker->GetPos().x - pos.x);
     if (bunker->GetPos().y - pos.y == 0)
